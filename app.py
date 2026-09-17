@@ -11,24 +11,27 @@ st.set_page_config(
 
 
 # Dosyaları Yükleme (Önbelleğe alarak performans artırıyoruz)
+import json
+import os
+import pickle
+
+# app.py dosyasının bulunduğu klasörün yolunu otomatik alıyoruz
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 @st.cache_resource
 def load_artifacts():
-  model = pickle.load(open("car_model.pkl", "rb"))
-  preprocessor = pickle.load(open("car_preprocessor.pkl", "rb"))
-  with open("columns.json", "r", encoding="utf-8") as f:
+  model_path = os.path.join(BASE_DIR, "car_model.pkl")
+  preprocessor_path = os.path.join(BASE_DIR, "car_preprocessor.pkl")
+  columns_path = os.path.join(BASE_DIR, "columns.json")
+
+  model = pickle.load(open(model_path, "rb"))
+  preprocessor = pickle.load(open(preprocessor_path, "rb"))
+
+  with open(columns_path, "r", encoding="utf-8") as f:
     columns = json.load(f)
+
   return model, preprocessor, columns
-
-
-try:
-  model, preprocessor, expected_columns = load_artifacts()
-except Exception as e:
-  st.error(
-      f"Model veya dosya yüklenirken hata oluştu! Lütfen pkl ve json"
-      f" dosyalarının dizinde olduğundan emin olun. Hata: {e}"
-  )
-  st.stop()
-
 st.title("🚗 İkinci El Araç Fiyat Tahmin Uygulaması")
 st.markdown(
     "Araç özelliklerini girerek tahmini piyasa fiyatını anında öğrenin."
